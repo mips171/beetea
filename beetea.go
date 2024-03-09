@@ -70,6 +70,11 @@ func (seq *Sequence) Tick() Status {
     return Success
 }
 
+type TreeBuilder interface {
+    AddTask(taskID string, actionFunc func() Status, dependencies []string)
+    Build() Node
+}
+
 func NewSelector(children ...Node) *Selector {
     return &Selector{CompositeNode{Children: children}}
 }
