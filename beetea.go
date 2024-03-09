@@ -6,6 +6,7 @@ type Status int
 const (
     Running Status = iota
     Success
+	Warning
     Failure
 )
 
