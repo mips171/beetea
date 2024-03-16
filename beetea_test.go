@@ -84,7 +84,7 @@ func TestHashRecalculationOnModification(t *testing.T) {
     actionNode.Action = func() Status {
         return Success
     }
-    actionNode.UpdateVersion() // Assume this recalculates the hash
+    actionNode.UpdateVersion()
 
     if actionNode.CalculateHash() == initialHash {
         t.Errorf("Expected hash to change after modification")
