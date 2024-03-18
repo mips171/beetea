@@ -6,7 +6,7 @@ A behavior tree doesn't have to stop at being a convenient model for representin
 
 Merkle trees, also known as hash trees, are a popular choice among the blockchain community beacuse they enable parts of a graph to be efficiently (*O(log n)*) compared. Each node contains the hash of all its children, and if any of them change, the hash changes. Only the hash needs to be communicated to know if anything in the sub-tree has changed, therefore only the difference needs to be communicated. 
 
-A key invariant to note is that the tree should remain balanced and not get too deep, otherwise search could be impacted negatively. A BT is not a BST, so traversal of deep trees will take longer than broad trees. One option to mitigate in practice is maintaining a hashtable that maps hashes to copies of nodes, effectively maintaing a flattened version of the BT.
+A key invariant to note is that the tree should remain balanced and not get too deep, otherwise search could be impacted negatively. A BT is not a BST, and searching for a hash in deep trees will take longer than broad trees (you only need to find the top of a branch). One option to mitigate in practice is maintaining a hashtable that maps hashes to copies of nodes, effectively maintaing a flattened version of the BT.
 
 Currently, our implementation takes inspiration from the design principles of Merkle trees, if not going so far as to implement them perfectly. Applied widely across networked systems (e.g. a team of autonomous robots), a BT that enables effcient delta-communication should result in significant gains due to decreased contention for bandwidth; think: smaller message sizes, decreasing energy used in excessive wireless transmissions, improved overall efficiency.
 
