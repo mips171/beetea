@@ -1,6 +1,6 @@
 # BeeTea
 
-🚧 Experimental behaviour tree module for Go 🚧
+🚧 WIP - Experimental behaviour tree module for Go 🚧
 
 A behavior tree doesn't have to stop at being a convenient model for representing plans for a singular system. Multi-agent coordination naturally benefits from communication, so we aim to design a BT implementation that can be efficiently communicated, with a view toward communicating BTs that are synthesised online (implying frequent updates).
 
