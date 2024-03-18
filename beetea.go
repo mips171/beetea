@@ -6,6 +6,21 @@ import (
 	"fmt"
 )
 
+// WIP: NodeMap is a flattened version of the BT for O(1) access to a copy of a node by hash.
+// Pay attention to synchoronization between the map and the tree. Staleness, etc.
+var nodeMap map[string]Node = make(map[string]Node)
+
+func FindNodeByID(id string) Node {
+    if node, exists := nodeMap[id]; exists {
+        return node
+    }
+    return nil
+}
+
+func RemoveNodeByID(id string) {
+    delete(nodeMap, id)
+}
+
 // Status represents the status of a node's execution.
 type Status int
 
@@ -69,6 +84,7 @@ func NewAction(id string, action func() Status) *ActionNode {
 		ID:     id,
 	}
 	node.UpdateVersion()
+    nodeMap[id] = node
 	return node
 }
 
@@ -99,6 +115,7 @@ func NewCondition(id string, condition func() bool) *ConditionNode {
 		ID:        id,
 	}
 	node.UpdateVersion()
+    nodeMap[id] = node
 	return node
 }
 
@@ -134,6 +151,7 @@ func (a *Selector) CalculateHash() string {
 func NewSelector(id string, children ...Node) *Selector {
 	node := &Selector{CompositeNode{Children: children, ID: id}}
 	node.UpdateVersion()
+    nodeMap[id] = node
 	return node
 }
 
