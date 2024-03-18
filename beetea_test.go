@@ -1,7 +1,9 @@
 package beetea
 
 import (
+	"fmt"
 	"testing"
+	"time"
 )
 
 func TestActionNode(t *testing.T) {
@@ -113,4 +115,47 @@ func TestCompositeNodeWithVariousChildStatuses(t *testing.T) {
 	if sequence.Tick() != Running {
 		t.Errorf("Expected Sequence to return Running when a child is running before encountering a failure")
 	}
+}
+
+// This test will print the time iff the current minute is even
+// Run it a few times. If the minute is even, the time will be printed.
+func TestMain(m *testing.T) {
+	// 1. Define the action function for even minutes
+	logTimeAction := func() Status {
+		fmt.Println("Current Time:", time.Now())
+		return Success
+	}
+
+	// 2. Define the action function for odd minutes
+	oddAction := func() Status {
+		fmt.Println("Current time was not even")
+		return Success
+	}
+
+	// 3. Define a condition function
+	isEvenMinuteCondition := func() bool {
+		return time.Now().Minute()%2 == 0
+	}
+
+	// 4. Create action nodes
+	evenActionNode := NewAction("logTimeEven", logTimeAction)
+	oddActionNode := NewAction("logTimeOdd", oddAction)
+
+	// 5. Create a condition node
+	conditionNode := NewCondition("isEvenMinute", isEvenMinuteCondition)
+
+	// 6. Adjust the tree structure
+	// This is where we need to be creative with the existing API
+	// For the sake of simplicity in this example, let's directly use the Selector for demonstration
+	selector := NewSelector("timeBasedActionSelector", conditionNode, oddActionNode, evenActionNode)
+
+	// 7. Execute the tree
+	status := selector.Tick()
+	fmt.Println("Tree execution status:", status)
+
+	// Optionally, inspect the tree's structure or the status of individual nodes
+	fmt.Println("Even Action Node Hash:", evenActionNode.CalculateHash())
+	fmt.Println("Odd Action Node Hash:", oddActionNode.CalculateHash())
+	fmt.Println("Condition Node Hash:", conditionNode.CalculateHash())
+	fmt.Println("Selector Node Hash:", selector.CalculateHash())
 }

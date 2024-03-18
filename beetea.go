@@ -6,21 +6,6 @@ import (
 	"fmt"
 )
 
-// WIP: NodeMap is a flattened version of the BT for O(1) access to a copy of a node by hash.
-// Pay attention to synchoronization between the map and the tree. Staleness, etc.
-var nodeMap map[string]Node = make(map[string]Node)
-
-func FindNodeByID(id string) Node {
-	if node, exists := nodeMap[id]; exists {
-		return node
-	}
-	return nil
-}
-
-func RemoveNodeByID(id string) {
-	delete(nodeMap, id)
-}
-
 // Status represents the status of a node's execution.
 type Status int
 
@@ -37,6 +22,7 @@ type Node interface {
 	CalculateHash() string
 	GetVersion() int
 	UpdateVersion()
+	GetID() string
 }
 
 // BaseNode includes fields and methods common to all nodes, such as hash and version.
@@ -88,6 +74,10 @@ func NewAction(id string, action func() Status) *ActionNode {
 	return node
 }
 
+func (a *ActionNode) GetID() string {
+	return a.ID
+}
+
 // ConditionNode represents a leaf node that checks a condition
 type ConditionNode struct {
 	BaseNode
@@ -119,11 +109,41 @@ func NewCondition(id string, condition func() bool) *ConditionNode {
 	return node
 }
 
+func (c *ConditionNode) GetID() string {
+	return c.ID
+}
+
 // CompositeNode is a base struct for nodes that have children.
 type CompositeNode struct {
 	BaseNode
 	Children []Node
 	ID       string
+}
+
+// CompositeNode should implement Node interface
+func (c *CompositeNode) Tick() Status {
+	return Running
+}
+
+func (c *CompositeNode) GetID() string {
+	return c.ID
+}
+
+func (c *CompositeNode) CalculateHash() string {
+	data := fmt.Sprintf("CompositeNode:%s:Version:%d", c.ID, c.version)
+
+	for _, child := range c.Children {
+		data += ":" + child.CalculateHash()
+	}
+
+	hash := sha256.Sum256([]byte(data))
+	c.hash = hex.EncodeToString(hash[:])
+	return c.hash
+}
+
+func (c *CompositeNode) UpdateVersion() {
+	c.version++
+	c.hash = c.CalculateHash()
 }
 
 // Selector executes its children until one of them succeeds.
@@ -160,6 +180,10 @@ type Sequence struct {
 	CompositeNode
 }
 
+func (s *Selector) GetID() string {
+	return s.ID
+}
+
 func (seq *Sequence) Tick() Status {
 	for _, child := range seq.Children {
 		status := child.Tick()
@@ -192,3 +216,49 @@ type TreeBuilder interface {
 	AddTask(taskID string, actionFunc func() Status, dependencies []string)
 	Build() Node
 }
+
+// WIP: NodeMap is a flattened version of the BT for O(1) access to a copy of a node by hash.
+// Pay attention to synchoronization between the map and the tree. Staleness, etc.
+var nodeMap map[string]Node = make(map[string]Node)
+
+func FindNode(id string) Node {
+	if node, exists := nodeMap[id]; exists {
+		return node
+	}
+	return nil
+}
+
+// AddNode adds a node to the tree and updates the nodeMap.
+// ParentID is the ID of the parent node to which this node will be added.
+// If ParentID is empty or not found, the node is not added to the tree but still tracked.
+func AddNode(parentID string, node Node) {
+	nodeMap[node.GetID()] = node // Add the node to the map regardless of its position in the tree.
+
+	if parentID == "" {
+		return
+	}
+
+	parentNode, exists := nodeMap[parentID]
+	if !exists {
+		fmt.Println("Parent node not found")
+		return
+	}
+
+	// Type assertion to check if parentNode is a CompositeNode
+	if compNode, ok := parentNode.(*CompositeNode); ok {
+		compNode.Children = append(compNode.Children, node)
+		compNode.UpdateVersion()
+	} else {
+		fmt.Println("Parent node cannot have children")
+	}
+}
+
+// RemoveNode removes a node from the tree and the nodeMap.
+func RemoveNode(nodeID string) {
+	// Removal from the tree structure should be handled here, which may require traversing
+	// the tree to find the parent node and then remove the specified node from its children.
+
+	// For now, let's just remove it from the nodeMap.
+	delete(nodeMap, nodeID)
+}
+
