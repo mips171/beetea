@@ -63,6 +63,15 @@ func (a *ActionNode) CalculateHash() string {
 	return a.hash
 }
 
+func NewAction(id string, action func() Status) *ActionNode {
+	node := &ActionNode{
+		Action: action,
+		ID:     id,
+	}
+	node.UpdateVersion()
+	return node
+}
+
 // ConditionNode represents a leaf node that checks a condition
 type ConditionNode struct {
 	BaseNode
@@ -82,6 +91,15 @@ func (a *ConditionNode) CalculateHash() string {
 	hash := sha256.Sum256([]byte(data))
 	a.hash = hex.EncodeToString(hash[:])
 	return a.hash
+}
+
+func NewCondition(id string, condition func() bool) *ConditionNode {
+	node := &ConditionNode{
+		Condition: condition,
+		ID:        id,
+	}
+	node.UpdateVersion()
+	return node
 }
 
 // CompositeNode is a base struct for nodes that have children.
@@ -113,6 +131,12 @@ func (a *Selector) CalculateHash() string {
 	return a.hash
 }
 
+func NewSelector(id string, children ...Node) *Selector {
+	node := &Selector{CompositeNode{Children: children, ID: id}}
+	node.UpdateVersion()
+	return node
+}
+
 // Sequence executes its children in order, succeeding if all succeed.
 type Sequence struct {
 	CompositeNode
@@ -140,35 +164,13 @@ func (seq *Sequence) CalculateHash() string {
 	return seq.hash
 }
 
-type TreeBuilder interface {
-	AddTask(taskID string, actionFunc func() Status, dependencies []string)
-	Build() Node
-}
-
-func NewSelector(id string, children ...Node) *Selector {
-	node := &Selector{CompositeNode{Children: children, ID: id}}
-	return node
-}
-
 func NewSequence(id string, children ...Node) *Sequence {
 	node := &Sequence{CompositeNode{Children: children, ID: id}}
 	return node
 }
 
-func NewAction(id string, action func() Status) *ActionNode {
-	node := &ActionNode{
-		Action: action,
-		ID:     id,
-	}
-	node.UpdateVersion()
-	return node
-}
-
-func NewCondition(id string, condition func() bool) *ConditionNode {
-	node := &ConditionNode{
-		Condition: condition,
-		ID:        id,
-	}
-	node.UpdateVersion()
-	return node
+// TreeBuilder is an interface for building a behavior tree.
+type TreeBuilder interface {
+	AddTask(taskID string, actionFunc func() Status, dependencies []string)
+	Build() Node
 }
