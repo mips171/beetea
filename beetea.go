@@ -128,11 +128,16 @@ func (seq *Sequence) Tick() Status {
 	return Success
 }
 
-func (a *Sequence) CalculateHash() string {
-	data := fmt.Sprintf("SequenceNode:%s:Version:%d", a.ID, a.version)
+func (seq *Sequence) CalculateHash() string {
+	data := fmt.Sprintf("SequenceNode:%s:Version:%d", seq.ID, seq.version)
+
+	for _, child := range seq.Children {
+		data += ":" + child.CalculateHash()
+	}
+
 	hash := sha256.Sum256([]byte(data))
-	a.hash = hex.EncodeToString(hash[:])
-	return a.hash
+	seq.hash = hex.EncodeToString(hash[:])
+	return seq.hash
 }
 
 type TreeBuilder interface {
