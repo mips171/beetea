@@ -6,7 +6,7 @@ A behavior tree doesn't have to stop at being a convenient model for representin
 
 Merkle trees, also known as hash trees, are a popular choice among the blockchain community beacuse they enable parts of a graph to be efficiently (*O(log n)*) compared. Each node contains the hash of all its children, and if any of them change, the hash changes. Only the hash needs to be communicated to know if anything in the sub-tree has changed, therefore only the difference needs to be communicated. 
 
-Currently, our implementation takes inspiration from the design principles of Merkle trees, if not going so far as to implement them perfectly. Applied widely across a networked system (e.g. a team of autonomous robots), a BT that enables effcient delta-communication should result in significant gains due to decreased contention for bandwidth; think: smaller message sizes, decreasing energy used in excessive wireless transmissions, improved overall efficiency.
+Currently, our implementation takes inspiration from the design principles of Merkle trees, if not going so far as to implement them perfectly. Applied widely across networked systems (e.g. a team of autonomous robots), a BT that enables effcient delta-communication should result in significant gains due to decreased contention for bandwidth; think: smaller message sizes, decreasing energy used in excessive wireless transmissions, improved overall efficiency.
 
 ### Details on Smaller Message Sizes
 * The average case would be small hashes to confirm what parts of the tree need to be communicated
