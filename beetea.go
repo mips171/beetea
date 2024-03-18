@@ -11,14 +11,14 @@ import (
 var nodeMap map[string]Node = make(map[string]Node)
 
 func FindNodeByID(id string) Node {
-    if node, exists := nodeMap[id]; exists {
-        return node
-    }
-    return nil
+	if node, exists := nodeMap[id]; exists {
+		return node
+	}
+	return nil
 }
 
 func RemoveNodeByID(id string) {
-    delete(nodeMap, id)
+	delete(nodeMap, id)
 }
 
 // Status represents the status of a node's execution.
@@ -84,7 +84,7 @@ func NewAction(id string, action func() Status) *ActionNode {
 		ID:     id,
 	}
 	node.UpdateVersion()
-    nodeMap[id] = node
+	nodeMap[id] = node
 	return node
 }
 
@@ -115,7 +115,7 @@ func NewCondition(id string, condition func() bool) *ConditionNode {
 		ID:        id,
 	}
 	node.UpdateVersion()
-    nodeMap[id] = node
+	nodeMap[id] = node
 	return node
 }
 
@@ -151,7 +151,7 @@ func (a *Selector) CalculateHash() string {
 func NewSelector(id string, children ...Node) *Selector {
 	node := &Selector{CompositeNode{Children: children, ID: id}}
 	node.UpdateVersion()
-    nodeMap[id] = node
+	nodeMap[id] = node
 	return node
 }
 
