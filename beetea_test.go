@@ -75,42 +75,42 @@ func TestSequenceNode(t *testing.T) {
 }
 
 func TestHashRecalculationOnModification(t *testing.T) {
-    actionNode := NewAction("action2", func() Status {
-        return Running
-    })
-    initialHash := actionNode.CalculateHash()
+	actionNode := NewAction("action2", func() Status {
+		return Running
+	})
+	initialHash := actionNode.CalculateHash()
 
-    // Simulate modification by changing the action
-    actionNode.Action = func() Status {
-        return Success
-    }
-    actionNode.UpdateVersion()
+	// Simulate modification by changing the action
+	actionNode.Action = func() Status {
+		return Success
+	}
+	actionNode.UpdateVersion()
 
-    if actionNode.CalculateHash() == initialHash {
-        t.Errorf("Expected hash to change after modification")
-    }
+	if actionNode.CalculateHash() == initialHash {
+		t.Errorf("Expected hash to change after modification")
+	}
 }
 
 func TestCompositeNodeWithVariousChildStatuses(t *testing.T) {
-    alwaysRunning := NewAction("alwaysRunning", func() Status {
-        return Running
-    })
-    alwaysSuccess := NewAction("alwaysSuccess", func() Status {
-        return Success
-    })
-    alwaysFailure := NewAction("alwaysFailure", func() Status {
-        return Failure
-    })
+	alwaysRunning := NewAction("alwaysRunning", func() Status {
+		return Running
+	})
+	alwaysSuccess := NewAction("alwaysSuccess", func() Status {
+		return Success
+	})
+	alwaysFailure := NewAction("alwaysFailure", func() Status {
+		return Failure
+	})
 
-    // Selector should succeed if any child succeeds
-    selector := NewSelector("selector2", alwaysFailure, alwaysRunning, alwaysSuccess)
-    if selector.Tick() != Running {
-        t.Errorf("Expected Selector to return Running when a child is running")
-    }
+	// Selector should succeed if any child succeeds
+	selector := NewSelector("selector2", alwaysFailure, alwaysRunning, alwaysSuccess)
+	if selector.Tick() != Running {
+		t.Errorf("Expected Selector to return Running when a child is running")
+	}
 
-    // Sequence should fail if any child fails
-    sequence := NewSequence("sequence3", alwaysSuccess, alwaysRunning, alwaysFailure)
-    if sequence.Tick() != Running {
-        t.Errorf("Expected Sequence to return Running when a child is running before encountering a failure")
-    }
+	// Sequence should fail if any child fails
+	sequence := NewSequence("sequence3", alwaysSuccess, alwaysRunning, alwaysFailure)
+	if sequence.Tick() != Running {
+		t.Errorf("Expected Sequence to return Running when a child is running before encountering a failure")
+	}
 }
