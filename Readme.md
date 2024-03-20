@@ -4,7 +4,7 @@
 
 A behavior tree doesn't have to stop at being a convenient model for representing plans for a singular system. Multi-agent coordination naturally benefits from communication, so we aim to design a BT implementation that can be efficiently communicated, with a view toward communicating BTs that are synthesised online (implying frequent updates).
 
-Merkle trees, also known as hash trees, are a popular choice among the blockchain community beacuse they enable parts of a graph to be efficiently (*O(log n)*) compared. Each node contains the hash of all its children, and if any of them change, the hash changes. Only the hash needs to be communicated to know if anything in the sub-tree has changed, therefore only the difference needs to be communicated. 
+Merkle trees, also known as hash trees, are a popular choice among the blockchain community beacuse they enable parts of a graph to be efficiently (*O(log n)*) compared. Each node contains the hash of all its children, and if any of them change, the hash changes. Only the hash needs to be communicated to know if anything in the sub-tree has changed, therefore, if synchronising, we identify the difference between two trees and just communicate that.
 
 A key invariant to note is that the tree should remain balanced and not get too deep, otherwise search could be impacted negatively. A BT is not a BST, and searching for a hash in deep trees will take longer than broad trees (you only need to find the top of a branch). One option to mitigate in practice is maintaining a hashtable that maps hashes to copies of nodes, effectively maintaing a flattened copy of the BT.
 
